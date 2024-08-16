@@ -1,4 +1,4 @@
-import { Navbar, Nav, Container, Button } from "react-bootstrap";
+import { Navbar, Nav, Container } from "react-bootstrap";
 
 export default function Header() {
   return (
@@ -6,7 +6,7 @@ export default function Header() {
       <Container>
         <Navbar.Brand href="#">
         
-          <span className="text-xl font-semibold text-dark">POS Final</span>
+          <span className="text-xl font-semibold text-dark">PointOfSaleFinale</span>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbar-nav" />
         <Navbar.Collapse id="navbar-nav">
@@ -16,16 +16,8 @@ export default function Header() {
             <Nav.Link href="/History">History</Nav.Link>
           </Nav>
           <Nav>
-            <Button
-              variant="outline-secondary"
-              className="me-2"
-              href="#"
-            >
-              Log in
-            </Button>
-            <Button variant="primary" href="#">
-              Get started
-            </Button>
+            
+           
           </Nav>
         </Navbar.Collapse>
       </Container>

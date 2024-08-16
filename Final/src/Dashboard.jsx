@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import Header from "./Header/Header";
 import { useState, useEffect } from "react";
 import { fetchData as apiFetchData } from "./utilities/ApiUti";
