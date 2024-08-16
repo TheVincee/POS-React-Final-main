@@ -1,9 +1,9 @@
 import Header from "./Header/Header";
 import { useState, useEffect } from "react";
-import { FaPlus, FaMinus } from "react-icons/fa";
 import { fetchData as apiFetchData } from "./utilities/ApiUti";
 import FilterTable from "./Components/Dashboard/Table/FilterTable";
 import Products from "./Components/Dashboard/Table/Products";
+import { FaMinus, FaPlus } from "react-icons/fa"; // Importing the correct icons
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(false);
@@ -18,7 +18,12 @@ export default function Dashboard() {
     setLoading(true);
     try {
       const result = await apiFetchData(PRODUCTS_API_URL, "GET");
-      setProducts(result);
+      // Store the original quantity in each product
+      const productsWithOriginalQuantity = result.map(product => ({
+        ...product,
+        originalQuantity: product.quantity
+      }));
+      setProducts(productsWithOriginalQuantity);
     } catch (error) {
       console.error("Failed to fetch products:", error);
     } finally {
@@ -56,47 +61,59 @@ export default function Dashboard() {
   };
 
   const incrementQuantity = (productId) => {
-    const product = products.find((p) => p.id === productId);
-    if (product.quantity <= 0) return;
+    setSelectedProducts((prevSelected) => {
+      const product = prevSelected.find((p) => p.id === productId);
+      if (!product) return prevSelected; // Product not found in selected list
 
-    setSelectedProducts((prevSelected) =>
-      prevSelected.map((p) =>
-        p.id === productId ? { ...p, quantity: p.quantity + 1 } : p
-      )
-    );
+      if (product.quantity < product.originalQuantity) { // Ensure it doesn't exceed the original stock
+        // Increase quantity in selected products
+        const updatedSelected = prevSelected.map((p) =>
+          p.id === productId ? { ...p, quantity: p.quantity + 1 } : p
+        );
+        
+        // Decrease quantity in available products
+        const updatedProducts = products.map((p) =>
+          p.id === productId ? { ...p, quantity: p.quantity - 1 } : p
+        );
 
-    setProducts((prevProducts) =>
-      prevProducts.map((p) =>
-        p.id === productId ? { ...p, quantity: p.quantity - 1 } : p
-      )
-    );
+        setProducts(updatedProducts); // Update the products state
+        return updatedSelected; // Return the updated selected state
+      }
+      return prevSelected;
+    });
   };
 
   const decrementQuantity = (productId) => {
-    const selectedProduct = selectedProducts.find((p) => p.id === productId);
-    if (selectedProduct && selectedProduct.quantity > 1) {
-      setSelectedProducts((prevSelected) =>
-        prevSelected.map((p) =>
+    setSelectedProducts((prevSelected) => {
+      const product = prevSelected.find((p) => p.id === productId);
+      if (!product) return prevSelected; // Product not found in selected list
+
+      if (product.quantity > 1) {
+        // Decrease quantity in selected products
+        const updatedSelected = prevSelected.map((p) =>
           p.id === productId ? { ...p, quantity: p.quantity - 1 } : p
-        )
-      );
-
-      setProducts((prevProducts) =>
-        prevProducts.map((p) =>
+        );
+        
+        // Increase quantity in available products
+        const updatedProducts = products.map((p) =>
           p.id === productId ? { ...p, quantity: p.quantity + 1 } : p
-        )
-      );
-    } else {
-      setSelectedProducts((prevSelected) =>
-        prevSelected.filter((p) => p.id !== productId)
-      );
+        );
 
-      setProducts((prevProducts) =>
-        prevProducts.map((p) =>
+        setProducts(updatedProducts); // Update the products state
+        return updatedSelected; // Return the updated selected state
+      } else {
+        // Remove product from selected list if quantity is 1
+        const updatedSelected = prevSelected.filter((p) => p.id !== productId);
+        
+        // Increase quantity in available products
+        const updatedProducts = products.map((p) =>
           p.id === productId ? { ...p, quantity: p.quantity + 1 } : p
-        )
-      );
-    }
+        );
+
+        setProducts(updatedProducts); // Update the products state
+        return updatedSelected; // Return the updated selected state
+      }
+    });
   };
 
   const calculateTotalPrice = () => {
@@ -152,8 +169,8 @@ export default function Dashboard() {
                     <Products
                       key={product.id}
                       product={product}
-                      decrementQuantity={() => decrementQuantity(product.id)}
                       incrementQuantity={() => incrementQuantity(product.id)}
+                      decrementQuantity={() => decrementQuantity(product.id)}
                     />
                   ))}
                 </ul>

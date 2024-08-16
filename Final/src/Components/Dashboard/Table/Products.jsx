@@ -14,14 +14,14 @@ export default function Products({ product, decrementQuantity, incrementQuantity
         <Button
           variant="outline-secondary"
           size="sm"
-          onClick={decrementQuantity}
+          onClick={decrementQuantity} // Decrement quantity should use FaMinus
         >
           <FaMinus />
         </Button>
         <Button
           variant="outline-secondary"
           size="sm"
-          onClick={incrementQuantity}
+          onClick={incrementQuantity} // Increment quantity should use FaPlus
         >
           <FaPlus />
         </Button>

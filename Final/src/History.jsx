@@ -1,7 +1,7 @@
 import Header from "./Header/Header";
 import { fetchData } from "./utilities/ApiUti";
 import { useState, useEffect } from "react";
-import { FaEye } from "react-icons/fa";
+import { FaEye, FaPrint } from "react-icons/fa";
 import { Table, Button, Modal } from 'react-bootstrap';
 
 const API_URL = "http://localhost:5222/api/Order";
@@ -33,6 +33,34 @@ export default function Historys() {
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedOrderDetails([]);
+  };
+
+  const printOrderDetails = () => {
+    const printWindow = window.open("", "", "width=800,height=600");
+    const printContent = document.getElementById("order-details").innerHTML;
+    printWindow.document.open();
+    printWindow.document.write(`
+      <html>
+      <head>
+        <title>Print Order Details</title>
+        <style>
+          table { width: 100%; border-collapse: collapse; }
+          th, td { border: 1px solid #ddd; padding: 8px; }
+          th { background-color: #f2f2f2; }
+          @media print {
+            .no-print { display: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Order Details</h1>
+        ${printContent}
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
   };
 
   useEffect(() => {
@@ -81,28 +109,33 @@ export default function Historys() {
           <Modal.Title>Order Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Table responsive>
-            <thead>
-              <tr>
-                <th>Product Name</th>
-                <th>Quantity</th>
-                <th>Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              {selectedOrderDetails.map((item, index) => (
-                <tr key={index}>
-                  <td>{item.ProductName}</td>
-                  <td>{item.Quantity}</td>
-                  <td>${item.Price}</td>
+          <div id="order-details">
+            <Table responsive>
+              <thead>
+                <tr>
+                  <th>Product Name</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {selectedOrderDetails.map((item, index) => (
+                  <tr key={index}>
+                    <td>{item.ProductName}</td>
+                    <td>{item.Quantity}</td>
+                    <td>${item.Price}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={closeModal}>
             Close
+          </Button>
+          <Button variant="info" onClick={printOrderDetails}>
+            <FaPrint /> Print
           </Button>
         </Modal.Footer>
       </Modal>

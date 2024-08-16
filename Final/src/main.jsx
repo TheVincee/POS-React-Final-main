@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // main.js or index.js
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from "react";
