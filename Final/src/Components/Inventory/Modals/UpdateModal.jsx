@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+// eslint-disable-next-line no-unused-vars
 import React from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 
@@ -57,6 +59,7 @@ const UpdateModal = ({ isOpen, toggleModal, updateProduct, setProduct, product }
             <Form.Control
               type="number"
               name="quantity"
+              // eslint-disable-next-line react/prop-types
               value={product.quantity || ""}
               onChange={handleChange}
               required

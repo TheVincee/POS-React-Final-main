@@ -1,4 +1,3 @@
-import { FaEdit, FaTrash } from "react-icons/fa";
 import { Button } from "react-bootstrap";
 
 export default function TableRow({ product, UpdateModal, DeleteModal }) {
@@ -12,18 +11,18 @@ export default function TableRow({ product, UpdateModal, DeleteModal }) {
       <td className="p-3">
         <div className="d-flex align-items-center gap-2">
           <Button
-            variant="outline-primary"
-            className="d-flex align-items-center justify-content-center p-2 rounded-circle"
+            variant="primary"
+            className="d-flex align-items-center justify-content-center p-2"
             onClick={UpdateModal}
           >
-            <FaEdit />
+            Update
           </Button>
           <Button
-            variant="outline-danger"
-            className="d-flex align-items-center justify-content-center p-2 rounded-circle"
+            variant="danger"
+            className="d-flex align-items-center justify-content-center p-2"
             onClick={DeleteModal}
           >
-            <FaTrash />
+            Delete
           </Button>
         </div>
       </td>

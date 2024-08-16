@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { FaPlus } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import { Button, Table, InputGroup, FormControl, Spinner, Container, Row, Col } from "react-bootstrap";
 import Header from "./Header/Header";
 import { fetchData } from "./utilities/ApiUti";
 import UpdateModal from "./Components/Inventory/Modals/UpdateModal";
 import DeleteModal from "./Components/Inventory/Modals/DeleteModal";
 import AddModal from "./Components/Inventory/Modals/AddModal";
 import TableRow from "./Components/Inventory/Table/TableRow";
-import { Button, Table, InputGroup, FormControl, Spinner, Container, Row, Col } from "react-bootstrap";
 
 export default function Inventory() {
   const [products, setProducts] = useState([]);
@@ -54,8 +53,7 @@ export default function Inventory() {
   };
 
   // Update an existing product
-  const updateProduct = async (e) => {
-    e.preventDefault();
+  const updateProduct = async () => {
     try {
       await fetchData(`${API_URL}/UpdateProduct?id=${currentItem.id}`, "PUT", product);
       toggleModal("update");
@@ -127,7 +125,7 @@ export default function Inventory() {
           </Col>
           <Col md={4} className="text-right">
             <Button variant="dark" onClick={() => toggleModal("add")}>
-              <FaPlus className="mr-2" /> Add
+              Add
             </Button>
           </Col>
         </Row>
@@ -152,8 +150,8 @@ export default function Inventory() {
                 <TableRow
                   key={product.id}
                   product={product}
-                  updateModal={() => toggleModal("update", product)}
-                  deleteModal={() => toggleModal("delete", product)}
+                  UpdateModal={() => toggleModal("update", product)}
+                  DeleteModal={() => toggleModal("delete", product)}
                 />
               ))}
             </tbody>

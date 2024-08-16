@@ -1,6 +1,6 @@
 import Header from "./Header/Header";
 import { fetchData } from "./utilities/ApiUti";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FaEye } from "react-icons/fa";
 import { Table, Button, Modal } from 'react-bootstrap';
 
