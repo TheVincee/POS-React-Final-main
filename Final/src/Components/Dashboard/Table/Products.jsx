@@ -5,23 +5,26 @@ import { FaPlus, FaMinus } from 'react-icons/fa';
 export default function Products({ product, decrementQuantity, incrementQuantity }) {
   return (
     <ListGroup.Item
-      className="d-flex justify-content-between align-items-center mb-2 rounded-lg shadow-sm"
+      className="d-flex justify-content-between align-items-center mb-2 rounded-lg shadow-sm bg-white"
+      style={{ fontSize: '1rem', padding: '1rem' }}
     >
       <span>
-        {product.name} - ${product.price} x {product.quantity}
+        <strong>{product.name}</strong> - ${product.price} x {product.quantity}
       </span>
       <div className="d-flex align-items-center gap-2">
         <Button
-          variant="outline-secondary"
+          variant="outline-danger"
           size="sm"
-          onClick={decrementQuantity} // Decrement quantity should use FaMinus
+          onClick={decrementQuantity}
+          style={{ borderRadius: '50%' }}
         >
           <FaMinus />
         </Button>
         <Button
-          variant="outline-secondary"
+          variant="outline-success"
           size="sm"
-          onClick={incrementQuantity} // Increment quantity should use FaPlus
+          onClick={incrementQuantity}
+          style={{ borderRadius: '50%' }}
         >
           <FaPlus />
         </Button>

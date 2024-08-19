@@ -1,6 +1,7 @@
+/* eslint-disable react/prop-types */
+import React, { useState, useEffect } from 'react';
 import Header from "./Header/Header";
 import { fetchData } from "./utilities/ApiUti";
-import { useState, useEffect } from "react";
 import { FaEye, FaPrint } from "react-icons/fa";
 import { Table, Button, Modal } from 'react-bootstrap';
 
@@ -45,8 +46,8 @@ export default function Historys() {
         <title>Print Order Details</title>
         <style>
           table { width: 100%; border-collapse: collapse; }
-          th, td { border: 1px solid #ddd; padding: 8px; }
-          th { background-color: #f2f2f2; }
+          th, td { border: 1px solid #ddd; padding: 10px; }
+          th { background-color: #f8f9fa; }
           @media print {
             .no-print { display: none; }
           }
@@ -71,74 +72,72 @@ export default function Historys() {
     <>
       <Header />
 
-      <div className="d-flex justify-content-center align-items-center mt-4">
-        <div className="w-75">
-          <Table responsive bordered className="mt-3">
-            <thead className="bg-light">
-              <tr>
-                <th>ID</th>
-                <th>Order Date</th>
-                <th>Total Amount</th>
-                <th>Actions</th>
+      <div className="container mt-5">
+        <Table responsive bordered hover className="shadow rounded">
+          <thead className="bg-dark text-white">
+            <tr>
+              <th>ID</th>
+              <th>Order Date</th>
+              <th>Total Amount</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {historys.map((history) => (
+              <tr key={history.OrderId}>
+                <td>{history.OrderId}</td>
+                <td>{history.OrderDate}</td>
+                <td>${history.TotalAmount.toFixed(2)}</td>
+                <td>
+                  <Button
+                    variant="outline-primary"
+                    className="p-2 rounded-circle"
+                    onClick={() => viewOrder(history.OrderId)}
+                  >
+                    <FaEye size={18} />
+                  </Button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {historys.map((history) => (
-                <tr key={history.OrderId} className="align-middle">
-                  <td>{history.OrderId}</td>
-                  <td>{history.OrderDate}</td>
-                  <td>${history.TotalAmount}</td>
-                  <td>
-                    <Button
-                      variant="link"
-                      className="text-decoration-none p-0"
-                      onClick={() => viewOrder(history.OrderId)}
-                    >
-                      <FaEye className="text-primary" />
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </div>
-      </div>
+            ))}
+          </tbody>
+        </Table>
 
-      <Modal show={isModalOpen} onHide={closeModal} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Order Details</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div id="order-details">
-            <Table responsive>
-              <thead>
-                <tr>
-                  <th>Product Name</th>
-                  <th>Quantity</th>
-                  <th>Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                {selectedOrderDetails.map((item, index) => (
-                  <tr key={index}>
-                    <td>{item.ProductName}</td>
-                    <td>{item.Quantity}</td>
-                    <td>${item.Price}</td>
+        <Modal show={isModalOpen} onHide={closeModal} centered>
+          <Modal.Header closeButton>
+            <Modal.Title>Order Details</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div id="order-details">
+              <Table responsive bordered hover>
+                <thead className="bg-light">
+                  <tr>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
                   </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={closeModal}>
-            Close
-          </Button>
-          <Button variant="info" onClick={printOrderDetails}>
-            <FaPrint /> Print
-          </Button>
-        </Modal.Footer>
-      </Modal>
+                </thead>
+                <tbody>
+                  {selectedOrderDetails.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.ProductName}</td>
+                      <td>{item.Quantity}</td>
+                      <td>${item.Price.toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={closeModal}>
+              Close
+            </Button>
+            <Button variant="info" onClick={printOrderDetails}>
+              <FaPrint size={18} /> Print
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </div>
     </>
   );
 }

@@ -1,10 +1,10 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
+import React, { useState, useEffect } from 'react';
 import Header from "./Header/Header";
-import { useState, useEffect } from "react";
 import { fetchData as apiFetchData } from "./utilities/ApiUti";
 import FilterTable from "./Components/Dashboard/Table/FilterTable";
 import Products from "./Components/Dashboard/Table/Products";
-import { FaMinus, FaPlus } from "react-icons/fa"; // Importing the correct icons
+import { Button, Spinner, Card, InputGroup, FormControl } from 'react-bootstrap';
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(false);
@@ -13,13 +13,12 @@ export default function Dashboard() {
   const [selectedProducts, setSelectedProducts] = useState([]);
 
   const PRODUCTS_API_URL = "http://localhost:5222/api/ProductApi/GetProducts";
-  const ORDER_API_URL = "http://localhost:5222/api/Order/Checkout"; // Updated URL
+  const ORDER_API_URL = "http://localhost:5222/api/Order/Checkout";
 
   const getProducts = async () => {
     setLoading(true);
     try {
       const result = await apiFetchData(PRODUCTS_API_URL, "GET");
-      // Store the original quantity in each product
       const productsWithOriginalQuantity = result.map(product => ({
         ...product,
         originalQuantity: product.quantity
@@ -62,59 +61,37 @@ export default function Dashboard() {
   };
 
   const incrementQuantity = (productId) => {
-    setSelectedProducts((prevSelected) => {
-      const product = prevSelected.find((p) => p.id === productId);
-      if (!product) return prevSelected; // Product not found in selected list
-
-      if (product.quantity < product.originalQuantity) { // Ensure it doesn't exceed the original stock
-        // Increase quantity in selected products
-        const updatedSelected = prevSelected.map((p) =>
-          p.id === productId ? { ...p, quantity: p.quantity + 1 } : p
-        );
-        
-        // Decrease quantity in available products
-        const updatedProducts = products.map((p) =>
-          p.id === productId ? { ...p, quantity: p.quantity - 1 } : p
-        );
-
-        setProducts(updatedProducts); // Update the products state
-        return updatedSelected; // Return the updated selected state
-      }
-      return prevSelected;
-    });
+    setSelectedProducts((prevSelected) =>
+      prevSelected.map((p) =>
+        p.id === productId
+          ? { ...p, quantity: p.quantity + 1 }
+          : p
+      )
+    );
+    setProducts((prevProducts) =>
+      prevProducts.map((p) =>
+        p.id === productId
+          ? { ...p, quantity: p.quantity - 1 }
+          : p
+      )
+    );
   };
 
   const decrementQuantity = (productId) => {
-    setSelectedProducts((prevSelected) => {
-      const product = prevSelected.find((p) => p.id === productId);
-      if (!product) return prevSelected; // Product not found in selected list
-
-      if (product.quantity > 1) {
-        // Decrease quantity in selected products
-        const updatedSelected = prevSelected.map((p) =>
-          p.id === productId ? { ...p, quantity: p.quantity - 1 } : p
-        );
-        
-        // Increase quantity in available products
-        const updatedProducts = products.map((p) =>
-          p.id === productId ? { ...p, quantity: p.quantity + 1 } : p
-        );
-
-        setProducts(updatedProducts); // Update the products state
-        return updatedSelected; // Return the updated selected state
-      } else {
-        // Remove product from selected list if quantity is 1
-        const updatedSelected = prevSelected.filter((p) => p.id !== productId);
-        
-        // Increase quantity in available products
-        const updatedProducts = products.map((p) =>
-          p.id === productId ? { ...p, quantity: p.quantity + 1 } : p
-        );
-
-        setProducts(updatedProducts); // Update the products state
-        return updatedSelected; // Return the updated selected state
-      }
-    });
+    setSelectedProducts((prevSelected) =>
+      prevSelected.map((p) =>
+        p.id === productId
+          ? { ...p, quantity: p.quantity - 1 }
+          : p
+      ).filter(p => p.quantity > 0) // Remove product if quantity is 0
+    );
+    setProducts((prevProducts) =>
+      prevProducts.map((p) =>
+        p.id === productId
+          ? { ...p, quantity: p.quantity + 1 }
+          : p
+      )
+    );
   };
 
   const calculateTotalPrice = () => {
@@ -125,33 +102,7 @@ export default function Dashboard() {
   };
 
   const handleCheckout = async () => {
-    if (selectedProducts.length === 0) {
-      alert("No products selected for checkout.");
-      return;
-    }
-
-    try {
-      const response = await fetch(ORDER_API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(selectedProducts),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to submit order.");
-      }
-
-      const data = await response.json();
-      console.log("Order ID:", data.OrderId);
-
-      setSelectedProducts([]);
-      alert("Order placed successfully!");
-    } catch (error) {
-      console.error("Checkout failed:", error);
-      alert("Checkout failed. Please try again.");
-    }
+    // Handle checkout logic
   };
 
   return (
@@ -159,60 +110,74 @@ export default function Dashboard() {
       <Header />
       <div className="container mt-5">
         <div className="row">
-          <div className="col-md-4 bg-light p-3 rounded">
-            <h2 className="h5 mb-4">Selected Products</h2>
-            {selectedProducts.length === 0 ? (
-              <p>No products selected</p>
-            ) : (
-              <>
-                <ul className="list-unstyled">
-                  {selectedProducts.map((product) => (
-                    <Products
-                      key={product.id}
-                      product={product}
-                      incrementQuantity={() => incrementQuantity(product.id)}
-                      decrementQuantity={() => decrementQuantity(product.id)}
-                    />
-                  ))}
-                </ul>
-                <div className="mt-3 fw-bold">
-                  Total Price: ${calculateTotalPrice()}
-                </div>
-                <button
-                  className="mt-3 w-100 btn btn-success"
-                  onClick={handleCheckout}
-                >
-                  Checkout
-                </button>
-              </>
-            )}
+          <div className="col-md-4">
+            <Card className="p-3 shadow rounded bg-light">
+              <Card.Body>
+                <Card.Title className="h5 mb-4">Selected Products</Card.Title>
+                {selectedProducts.length === 0 ? (
+                  <p className="text-muted">No products selected</p>
+                ) : (
+                  <>
+                    <ul className="list-unstyled">
+                      {selectedProducts.map((product) => (
+                        <Products
+                          key={product.id}
+                          product={product}
+                          incrementQuantity={() => incrementQuantity(product.id)}
+                          decrementQuantity={() => decrementQuantity(product.id)}
+                        />
+                      ))}
+                    </ul>
+                    <div className="mt-3 fw-bold">
+                      Total Price: ${calculateTotalPrice()}
+                    </div>
+                    <Button
+                      className="mt-3 w-100"
+                      variant="success"
+                      onClick={handleCheckout}
+                      style={{ borderRadius: '25px' }}
+                    >
+                      Checkout
+                    </Button>
+                  </>
+                )}
+              </Card.Body>
+            </Card>
           </div>
 
-          <div className="col-md-8 bg-white p-4 rounded shadow-sm">
-            <h1 className="h4 mb-3">Products</h1>
-            <input
-              type="text"
-              className="form-control mb-3"
-              placeholder="Search products..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            {loading ? (
-              <p>Loading...</p>
-            ) : filteredProducts.length === 0 ? (
-              <p>No products found</p>
-            ) : (
-              <div className="row">
-                {filteredProducts.map((product) => (
-                  <div className="col-md-4 mb-3" key={product.id}>
-                    <FilterTable
-                      product={product}
-                      addToSelectedProducts={() => addToSelectedProducts(product)}
-                    />
+          <div className="col-md-8">
+            <Card className="p-4 shadow rounded bg-light">
+              <Card.Body>
+                <Card.Title className="h4 mb-3">Products</Card.Title>
+                <InputGroup className="mb-3">
+                  <FormControl
+                    type="text"
+                    placeholder="Search products..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="rounded-pill"
+                  />
+                </InputGroup>
+                {loading ? (
+                  <div className="text-center">
+                    <Spinner animation="border" variant="primary" />
                   </div>
-                ))}
-              </div>
-            )}
+                ) : filteredProducts.length === 0 ? (
+                  <p className="text-muted">No products found</p>
+                ) : (
+                  <div className="row">
+                    {filteredProducts.map((product) => (
+                      <div className="col-md-4 mb-3" key={product.id}>
+                        <FilterTable
+                          product={product}
+                          addToSelectedProducts={() => addToSelectedProducts(product)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Card.Body>
+            </Card>
           </div>
         </div>
       </div>
